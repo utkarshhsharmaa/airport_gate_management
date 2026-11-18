@@ -1,0 +1,132 @@
+* {
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background-color: #e0f2fe;
+    margin: 0;
+    padding-bottom: 40px;
+    text-align: center;
+    color: #1e293b;
+}
+
+header {
+    background-color: #1e3a8a;
+    color: white;
+    padding: 20px 15px;
+}
+
+header h1 {
+    margin: 0 0 6px 0;
+    font-size: 26px;
+}
+
+header p {
+    margin: 0;
+    font-size: 14px;
+    color: #dbeafe;
+}
+
+.box {
+    background-color: white;
+    width: 90%;
+    max-width: 850px;
+    margin: 22px auto;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+    color: #1e3a8a;
+    margin-top: 0;
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 8px;
+}
+
+input, select {
+    padding: 9px 12px;
+    margin: 5px;
+    border: 1px solid #94a3b8;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+label {
+    font-weight: bold;
+    font-size: 14px;
+    margin-left: 6px;
+}
+
+button {
+    background-color: #1e3a8a;
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    font-size: 15px;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #2563eb;
+}
+
+.del-btn {
+    background-color: #dc2626;
+    padding: 6px 12px;
+    font-size: 13px;
+}
+
+.del-btn:hover {
+    background-color: #b91c1c;
+}
+
+#result {
+    margin-top: 15px;
+    font-size: 16px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+th {
+    background-color: #1e3a8a;
+    color: white;
+    padding: 10px;
+}
+
+td, th {
+    border: 1px solid #cbd5e1;
+    padding: 10px;
+    font-size: 14px;
+}
+
+tr:nth-child(even) {
+    background-color: #f8fafc;
+}
+
+.available {
+    color: #15803d;
+    font-weight: bold;
+}
+
+.occupied {
+    color: #b91c1c;
+    font-weight: bold;
+}
+
+@media (max-width: 600px) {
+    input, select {
+        width: 90%;
+    }
+    td, th {
+        padding: 6px;
+        font-size: 12px;
+    }
+}
