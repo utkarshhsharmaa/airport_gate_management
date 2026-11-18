@@ -1,10 +1,11 @@
-// Starting flight record
 let schedules = [
-    { flight: "AI-101", aircraft: "Medium", type: "Arrival", start: "09:00", end: "10:00", gate: "A1" }
+    { flight: "AI-101", airline: "Air India", aircraft: "Medium", type: "Arrival", start: "09:00", end: "10:00", gate: "A1" },
+    { flight: "6E-205", airline: "IndiGo", aircraft: "Medium", type: "Departure", start: "10:00", end: "11:00", gate: "A2" }
 ];
 
 function assign() {
     let flight = document.getElementById("flight").value.trim().toUpperCase();
+    let airline = document.getElementById("airline").value.trim();
     let aircraft = document.getElementById("aircraft").value;
     let flightType = document.getElementById("flightType").value;
     let start = document.getElementById("start").value;
@@ -12,98 +13,102 @@ function assign() {
     let gate = document.getElementById("gate").value;
     let result = document.getElementById("result");
 
-    // 1. Check empty fields
-    if (flight == "" || start == "" || end == "") {
-        result.style.color = "red";
-        result.innerHTML = "Error: Please fill all flight details!";
+    if (flight == "" || airline == "" || start == "" || end == "") {
+        showMsg("Error: Please fill all flight details!", "#fee2e2", "#991b1b");
         return;
     }
 
-    // 2. Check valid timing
     if (end <= start) {
-        result.style.color = "red";
-        result.innerHTML = "Error: End time must be after Start time!";
+        showMsg("Error: End time must be after Start time!", "#fee2e2", "#991b1b");
         return;
     }
 
-    // 3. Check duplicate flight number
     for (let i = 0; i < schedules.length; i++) {
         if (schedules[i].flight == flight) {
-            result.style.color = "red";
-            result.innerHTML = "Conflict: Flight " + flight + " is already scheduled!";
+            showMsg("Conflict: Flight " + flight + " is already scheduled!", "#fee2e2", "#991b1b");
             return;
         }
     }
 
-    // 4. Check Aircraft vs Gate Size Compatibility
     if ((gate == "A1" || gate == "A2") && aircraft == "Large") {
-        result.style.color = "red";
-        result.innerHTML = "Size Error: Large aircraft cannot use Gate " + gate + "!";
+        showMsg("Aircraft Conflict: Large aircraft cannot fit in Gate " + gate + "!", "#fee2e2", "#991b1b");
         return;
     }
     if (gate == "B1" && aircraft == "Small") {
-        result.style.color = "red";
-        result.innerHTML = "Size Error: Small aircraft should use Gate A1 or A2!";
+        showMsg("Aircraft Conflict: Small aircraft must use Gate A1 or A2!", "#fee2e2", "#991b1b");
         return;
     }
     if (gate == "B2" && aircraft != "Large") {
-        result.style.color = "red";
-        result.innerHTML = "Size Error: Gate B2 is reserved for Large aircraft only!";
+        showMsg("Aircraft Conflict: Gate B2 is for Large aircraft only!", "#fee2e2", "#991b1b");
         return;
     }
 
-    // 5. Check Overlapping Time Schedule on the same gate
     for (let i = 0; i < schedules.length; i++) {
         if (schedules[i].gate == gate) {
             if (start < schedules[i].end && end > schedules[i].start) {
-                result.style.color = "red";
-                result.innerHTML = "Schedule Conflict: Gate " + gate + " is busy from " + schedules[i].start + " to " + schedules[i].end + "!";
+                showMsg("Schedule Conflict: Gate " + gate + " is occupied by " + schedules[i].flight + " (" + schedules[i].start + " - " + schedules[i].end + ")!", "#fee2e2", "#991b1b");
                 return;
             }
         }
     }
 
-    // 6. All checks passed -> Save and Update UI
-    schedules.push({ flight: flight, aircraft: aircraft, type: flightType, start: start, end: end, gate: gate });
+    schedules.push({ flight: flight, airline: airline, aircraft: aircraft, type: flightType, start: start, end: end, gate: gate });
 
     let table = document.getElementById("flightTable");
     table.innerHTML +=
         "<tr>" +
-        "<td>" + flight + "</td>" +
+        "<td><strong>" + flight + "</strong></td>" +
+        "<td>" + airline + "</td>" +
         "<td>" + aircraft + "</td>" +
         "<td>" + flightType + "</td>" +
         "<td>" + start + " - " + end + "</td>" +
         "<td>" + gate + "</td>" +
+        "<td><span class='badge-ok'>Assigned</span></td>" +
         "<td><button class='del-btn' onclick=\"removeFlight(this, '" + flight + "', '" + gate + "')\">Remove</button></td>" +
         "</tr>";
 
-    updateGateStatus(gate);
-
-    result.style.color = "green";
-    result.innerHTML = "Success: Flight " + flight + " assigned to Gate " + gate + "!";
+    updateDashboard();
+    showMsg("Success: Flight " + flight + " (" + airline + ") assigned to Gate " + gate + "!", "#dcfce7", "#166534");
     document.getElementById("flight").value = "";
+    document.getElementById("airline").value = "";
 }
 
-// Update Gate Status table automatically
-function updateGateStatus(gate) {
-    let count = 0;
-    for (let i = 0; i < schedules.length; i++) {
-        if (schedules[i].gate == gate) {
-            count++;
+function showMsg(text, bg, color) {
+    let result = document.getElementById("result");
+    result.innerHTML = text;
+    result.style.backgroundColor = bg;
+    result.style.color = color;
+}
+
+function updateDashboard() {
+    let allGates = ["A1", "A2", "B1", "B2"];
+    let busyCount = 0;
+
+    for (let g = 0; g < allGates.length; g++) {
+        let gateName = allGates[g];
+        let flightCount = 0;
+
+        for (let i = 0; i < schedules.length; i++) {
+            if (schedules[i].gate == gateName) {
+                flightCount++;
+            }
+        }
+
+        let cell = document.getElementById("status-" + gateName);
+        if (flightCount > 0) {
+            cell.innerHTML = "Occupied (" + flightCount + ")";
+            cell.className = "occupied";
+            busyCount++;
+        } else {
+            cell.innerHTML = "Available";
+            cell.className = "available";
         }
     }
 
-    let statusCell = document.getElementById("status-" + gate);
-    if (count > 0) {
-        statusCell.innerHTML = "Occupied (" + count + " Flight)";
-        statusCell.className = "occupied";
-    } else {
-        statusCell.innerHTML = "Available";
-        statusCell.className = "available";
-    }
+    document.getElementById("free-gates").innerHTML = 4 - busyCount;
+    document.getElementById("busy-gates").innerHTML = busyCount;
 }
 
-// Remove flight and free up the gate
 function removeFlight(btn, flightNo, gate) {
     let row = btn.parentNode.parentNode;
     row.parentNode.removeChild(row);
@@ -115,7 +120,6 @@ function removeFlight(btn, flightNo, gate) {
         }
     }
 
-    updateGateStatus(gate);
-    document.getElementById("result").style.color = "blue";
-    document.getElementById("result").innerHTML = "Flight " + flightNo + " removed from Gate " + gate + ".";
+    updateDashboard();
+    showMsg("Flight " + flightNo + " removed. Gate " + gate + " updated.", "#e0f2fe", "#1e40af");
 }
