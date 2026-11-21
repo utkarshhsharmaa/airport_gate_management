@@ -1,1 +1,1 @@
-# airport_gate_management
+# GateSync – Airport Gate Management System
